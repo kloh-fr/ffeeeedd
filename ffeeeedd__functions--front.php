@@ -27,7 +27,6 @@
   == Injection des scripts et styles
     -- Ajouter les scripts et styles via wp_head()
     -- Créer les éléments html5 pour IE8 et -
-    -- Tester l’activation du javascript
     -- Réponse aux commentaires
   == Fil d’Ariane
     -- Récupère les catégories parentes et y ajoute les microdonnées
@@ -58,7 +57,7 @@
   add_filter( 'nav_menu_css_class', 'ffeeeedd__css__attributs', 100, 1 );
   add_filter( 'nav_menu_item_id', 'ffeeeedd__css__attributs', 100, 1 );
   add_filter( 'page_css_class', 'ffeeeedd__css__attributs', 100, 1 );
-  if( ! function_exists( 'ffeeeedd__css__attributs' ) ) {
+  if ( ! function_exists( 'ffeeeedd__css__attributs' ) ) {
     function ffeeeedd__css__attributs( $var ) {
       return is_array( $var ) ? array_intersect( $var, array( 'current_page_item', 'current-page-ancestor', 'current_page_parent', 'current-menu-parent', 'current-menu-item', 'inbl' ) ) : '';
     }
@@ -120,14 +119,14 @@
    */
 
   /* -- @subsection Ajoute un lien «Lire la suite» après l’extrait -------------------- */
-  if( ! function_exists( 'ffeeeedd__extrait__lien' ) ) {
+  if ( ! function_exists( 'ffeeeedd__extrait__lien' ) ) {
     function ffeeeedd__extrait__lien() {
       return ' <a href="' . esc_url( get_permalink() ) . '" aria-hidden="true">' . __( 'Continue reading', 'ffeeeedd' ) . ' «&nbsp;' . esc_attr( get_the_title() ) . '&nbsp;» <span class="meta-nav">&rarr;</span></a>';
     }
   }
 
   /* -- @subsection Remplace le «[...]» ajouté automatiquement aux extraits par une ellipse et le lien «Lire la suite» -------------------- */
-  if( ! function_exists( 'ffeeeedd__extrait__auto' ) ) {
+  if ( ! function_exists( 'ffeeeedd__extrait__auto' ) ) {
     function ffeeeedd__extrait_auto( $more ) {
       return ' [&hellip;]' . ffeeeedd__extrait__lien();
     }
@@ -202,7 +201,7 @@
   function ffeeeedd__ie_html5 () {
     // On commence par tester s’il s'agit bien d’IE à l’aide d’une variable globale proposée par WordPress
     global $is_IE;
-    if( $is_IE ) {
+    if ( $is_IE ) {
       // Puis on ajoute, dans un commentaire conditionnel, le script magique
       echo '<!--[if lt IE 9]>';
       echo '<script>a="header0footer0section0aside0nav0article0figure0figcaption0main0time0mark".split(0);for(i=a.length;i--;)document.createElement(a[i]);</script>';
@@ -211,23 +210,10 @@
   }
   add_action( 'wp_head', 'ffeeeedd__ie_html5' );
 
-  /* -- @subsection Tester l’activation du js -------------------- */
-  /**
-   * @author Gaël Poupard
-   * @see https://twitter.com/ffoodd_fr
-   * @note Inspiré par Modernizr
-   * @author http://modernizr.com/
-   * @see http://modernizr.github.io/Modernizr/annotatedsource.html#section-103
-  */
-  function ffeeeedd__test_js () {
-    echo "<!-- Test de l'activation du javascript -->";
-    echo "<script>document.documentElement.className=document.documentElement.className.replace(/\bno-js\b/g,'')+' js';</script>";
-    echo "<!-- Fin du test de l'activation du javascript -->";
-  }
-  add_action( 'wp_head', 'ffeeeedd__test_js' );
-
   /* -- @subsection Réponse aux commentaires -------------------- */
-  if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) { wp_enqueue_script( 'comment-reply' ); }
+  if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
+    wp_enqueue_script( 'comment-reply' );
+  }
 
 
   /* == @section Fil d’Ariane ==================== */
@@ -245,10 +231,10 @@
   */
 
   /* -- @subsection Récupère les catégories parentes et y ajoute les microdonnées -------------------- */
-  function ffeeeedd__categories( $id, $link = false, $separator = '/', $nicename = false, $visited = array() ) {
+  function ffeeeedd__categories( $id, $link = false, $separator = '<span aria-hidden="true"> &rarr;&nbsp;</span>', $nicename = false, $visited = array() ) {
     $final = '';
     $parent = get_category( $id );
-    if (is_wp_error( $parent ) ) {
+    if ( is_wp_error( $parent ) ) {
       return $parent;
     }
     if ( $nicename ) {
@@ -304,7 +290,10 @@
     }
 
     // Empêche d'autre(s) code(s) d’interférer avec l’accueil statique ou blog
-    if ( is_front_page() && is_home() ) { } elseif ( is_front_page() ) { } elseif ( is_home() ) { }
+    if ( is_front_page() && is_home() ) {
+    } elseif ( is_front_page() ) {
+    } elseif ( is_home() ) {
+    }
 
     //  Fichiers attachés
     elseif ( is_attachment() ) {
@@ -358,8 +347,7 @@
         global $post;
         $permalink = get_permalink( $post->ID );
         $title = $post->post_title;
-        $final .= '<li class="inbl" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a href="' . esc_url( $permalink ) . '" itemprop="url" title="' . esc_attr( $title ) . '"><span itemprop="title">' . $title . '</span></a>';
-        $final .= $sep . '</li><li class="inbl" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><span itemprop="title">' . __( 'Comments page ', 'ffeeeedd' ) . $cpage . '</span></li>';
+        $final .= '<li class="inbl" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a href="' . esc_url( $permalink ) . '" itemprop="url" title="' . esc_attr( $title ) . '"><span itemprop="title">' . $title . '</span></a>' . $sep . '</li><li class="inbl" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><span itemprop="title">' . __( 'Comments page ', 'ffeeeedd' ) . $cpage . '</span></li>';
       }
       // Sans pages de commentaires
       else {
@@ -396,18 +384,13 @@
         $title = the_title( '', '', false );
         $ancestors = array_reverse( get_post_ancestors( $post->ID ) );
         array_push( $ancestors, $post->ID );
-        $count = count ( $ancestors ); $i=0;
         foreach ( $ancestors as $ancestor ) {
-          if( $ancestor != end( $ancestors ) ) {
+          if ( $ancestor != end( $ancestors ) ) {
             $name = strip_tags( apply_filters( 'single_post_title', get_the_title( $ancestor ) ) );
-            $final .= '<li class="inbl" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a title="' . esc_attr( $name ) . '" href="' . esc_url( get_permalink( $ancestor ) ) . '" itemprop="url"><span itemprop="title">' . $name . '</span></a>';
-            $i++;
-            if ( $i < $ancestors ) {
-              $final .= $sep . '</li>';
-            }
+            $final .= '<li class="inbl" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a title="' . esc_attr( $name ) . '" href="' . esc_url( get_permalink( $ancestor ) ) . '" itemprop="url"><span itemprop="title">' . $name . '</span></a>' . $sep . '</li>';
           }
           else {
-            $final .= '</li><li class="inbl" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><span itemprop="title">' . strip_tags( apply_filters( 'single_post_title', get_the_title( $ancestor ) ) ) . '</span></li>';
+            $final .= '<li class="inbl" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><span itemprop="title">' . strip_tags( apply_filters( 'single_post_title', get_the_title( $ancestor ) ) ) . '</span></li>';
           }
         }
       }
@@ -415,7 +398,7 @@
 
     // Auteurs
     elseif ( is_author() ) {
-      if( get_query_var( 'author_name' ) ) {
+      if ( get_query_var( 'author_name' ) ) {
         $curauth = get_user_by( 'slug', get_query_var( 'author_name' ) );
       } else {
         $curauth = get_userdata( get_query_var( 'author' ) );
@@ -444,15 +427,15 @@
       $parents = get_ancestors( $term->term_id, $taxonomie->name );
 
       // S’il y a une taxonomie parente, on la récupère aussi
-      if( is_taxonomy_hierarchical( $taxonomie->name ) && $term->parent != 0 ) {
+      if ( is_taxonomy_hierarchical( $taxonomie->name ) && $term->parent != 0 ) {
         // On affiche le type d’articles
         $final .= '<li class="inbl small" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a title="' . esc_attr( $post_type->labels->name ) . '" href="' . esc_url( get_post_type_archive_link( $post_type->name ) ) . '" itemprop="url"><span itemprop="title">' . $post_type->labels->name  . '</span></a>' . $sep . '</li>';
         // Puis la taxonomie de premier niveau
         $final .= '<li class="inbl small" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a title="' . esc_attr( $taxonomie->labels->name ) . '" href="' . esc_url( get_term_link( $term->parent, $term->taxonomy ) ) . '" itemprop="url"><span itemprop="title">' . $taxonomie->labels->name  . '</span></a>' . $sep . '</li>';
         // Ensuite les taxonomies parentes intermédiaires
-        foreach( $parents as $parent_id ) {
+        foreach ( $parents as $parent_id ) {
           $parent = get_term_by( 'id', $parent_id, $taxonomie->name);
-          if( $parent->parent != 0 ) {
+          if ( $parent->parent != 0 ) {
             $final .= '<li class="inbl small" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a title="' . esc_attr( $parent->name ) . '" href="' . esc_url( get_term_link( $parent->term_id, $parent->taxonomy ) ) . '" itemprop="url"><span itemprop="title">' . $parent->name  . '</span></a>' . $sep . '</li>';
           }
         }
@@ -486,7 +469,7 @@
       $posttype = get_query_var('post_type');
       $posttypeobject = get_post_type_object( $posttype );
       $titrearchive = $posttypeobject->labels->menu_name;
-      if( isset( $titrearchive ) ) {
+      if ( isset( $titrearchive ) ) {
         $final .= '<li class="inbl small" itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><span itemprop="title">' . $titrearchive . '</span></li>';
       }
     }
@@ -522,7 +505,7 @@
    * @see http://www.geekpress.fr/wordpress/astuce/pagination-wordpress-sans-plugin-52/
   */
 
-  if( ! function_exists( 'ffeeeedd__pagination' ) ) {
+  if ( ! function_exists( 'ffeeeedd__pagination' ) ) {
     function ffeeeedd__pagination() {
       global $wp_query, $wp_rewrite;
       $wp_query->query_vars['paged'] > 1 ? $current = $wp_query->query_vars['paged'] : $current = 1;
@@ -538,10 +521,10 @@
         'next_text' => __( 'Next page &rarr;', 'ffeeeedd' ),
         'prev_text' => __( '&larr; Previous page', 'ffeeeedd' )
       );
-      if( $wp_rewrite->using_permalinks() ) {
+      if ( $wp_rewrite->using_permalinks() ) {
         $pagination['base'] = user_trailingslashit( trailingslashit( remove_query_arg( 's', get_pagenum_link( 1 ) ) ) . 'page/%#%/', 'paged' );
       }
-      if( !empty( $wp_query->query_vars['s'] ) ) {
+      if ( !empty( $wp_query->query_vars['s'] ) ) {
         $pagination['add_args'] = array( 's' => str_replace( ' ' , '+', get_query_var( 's' ) ) );
       }
       echo str_replace( 'page/1/', '', paginate_links( $pagination ) );
@@ -758,7 +741,7 @@
     if ( ! function_exists( 'ffeeeedd__injection__canonical' ) ) {
       function ffeeeedd__injection__canonical() {
         global $wp_query;
-        if( isset( $wp_query->post->ID ) && get_post_meta( $wp_query->post->ID, '_ffeeeedd__metabox__canonical', true ) ) {
+        if ( isset( $wp_query->post->ID ) && get_post_meta( $wp_query->post->ID, '_ffeeeedd__metabox__canonical', true ) ) {
             echo '<link rel="canonical" href="' . esc_url( get_post_meta( $wp_query->post->ID, '_ffeeeedd__metabox__titre', true ) ) . '" />';
         }
       }
